@@ -1,0 +1,232 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 217 71% 30%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 217 71% 45%;
+    --secondary-foreground: 0 0% 9.8%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 217 71% 30%;
+
+    --radius: 0.5rem;
+
+    /* Brand colors */
+    --brand-navy:240 52% 35%;
+    --brand-navy-dark: 217 71% 30%;
+    --brand-navy-medium: 217 71% 45%;
+    --brand-navy-light: 217 71% 60%;
+    --brand-navy-lightest: 217 71% 85%;
+    --sidebar-background:226.42 66.09% 18.49%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 0 0% 9%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 30% 61%;
+    --sidebar-accent-foreground: hsl(240deg 30.78% 13.85%);
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --text:0 0% 100%;
+    --background: 222.2 84% 4.9%;
+    --foreground: 0 0% 80%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 217 71% 45%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217 71% 30%;
+    --secondary-foreground: 0 0% 9.8%;
+
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 224.3 76.3% 48%;
+
+    /* Brand colors for dark mode */
+     --brand-navy:240 52% 35%
+    --brand-navy-dark: 217 71% 45%;
+    --brand-navy-medium: 217 71% 60%;
+    --brand-navy-light: 217 71% 75%;
+    --brand-navy-lightest: 217 71% 90%;
+    --sidebar-background: 222.2 84% 4.9%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  /* Sidebar widths */
+  :root {
+    --sidebar-width: 16rem;
+    --sidebar-width-icon: 4rem; /* increased from 3rem */
+  }
+
+.custom-logout-button {
+  background-color: var(--sidebar-background) !important;
+  color: var(--sidebar-foreground) !important;
+  border-color: none !important;
+}
+
+.custom-logout-button:hover,
+.custom-logout-button:focus,
+.custom-logout-button:active {
+  background-color: hsl(217 71% 30%) !important; /* example hover bg color */
+  color: var(--sidebar-primary-foreground) !important; /* example hover text color */
+  border-color: var(--sidebar-border) !important;
+}
+
+.custom-toggle-button {
+  background-color: var(--sidebar-background) !important;
+  color: var(--sidebar-foreground) !important;
+  border-color: var(--sidebar-border) !important;
+}
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* Custom Scrollbar Styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 3px;
+    transition: background 0.2s ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* Firefox scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+  }
+
+  /* Hide scrollbar completely */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Elegant scrollbar for main content areas */
+  .elegant-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .elegant-scrollbar::-webkit-scrollbar-track {
+    background: hsl(var(--muted) / 0.5);
+    border-radius: 4px;
+  }
+
+  .elegant-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--brand-navy-light) / 0.6);
+    border-radius: 4px;
+    border: 1px solid hsl(var(--background));
+  }
+
+  .elegant-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--brand-navy-medium) / 0.8);
+  }
+}
+
+@layer utilities {
+  .brand-navy-dark {
+    color: hsl(var(--brand-navy-dark));
+  }
+  .brand-navy-medium {
+    color: hsl(var(--brand-navy-medium));
+  }
+  .brand-navy-light {
+    color: hsl(var(--brand-navy-light));
+  }
+  .brand-navy-lightest {
+    color: hsl(var(--brand-navy-lightest));
+  }
+  .bg-brand-navy-dark {
+    background-color: hsl(var(--brand-navy-dark));
+  }
+  .bg-brand-navy-medium {
+    background-color: hsl(var(--brand-navy-medium));
+  }
+  .bg-brand-navy-light {
+    background-color: hsl(var(--brand-navy-light));
+  }
+  .bg-brand-navy-lightest {
+    background-color: hsl(var(--brand-navy-lightest));
+  }
+  .border-brand-navy-dark {
+    border-color: hsl(var(--brand-navy-dark));
+  }
+  .border-brand-navy-medium {
+    border-color: hsl(var(--brand-navy-medium));
+  }
+  .border-brand-navy-light {
+    border-color: hsl(var(--brand-navy-light));
+  }
+  .border-brand-navy-lightest {
+    border-color: hsl(var(--brand-navy-lightest));
+  }
+}
