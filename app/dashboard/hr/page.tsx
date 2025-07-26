@@ -1,8 +1,9 @@
 "use client";
 import React, { useState, useRef, useCallback, useMemo } from 'react';
 import Papa from 'papaparse';
-import { DashboardLayout } from "@/components/dashboard-layout"; // Adjust the path if needed
-
+import { DashboardLayout } from "@/components/dashboard-layout";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 
 export default function Home() {
   const [employees, setEmployees] = useState([
@@ -15,7 +16,6 @@ export default function Home() {
 
   const fileInputRef = useRef(null);
 
-  // Calculate real-time statistics using useMemo for performance
   const { employeeCount, turnoverRate, averageTenure } = useMemo(() => {
     const activeEmployees = employees.filter(emp => emp.status === 'Active').length;
     const inactiveEmployees = employees.filter(emp => emp.status === 'Inactive').length;
@@ -27,12 +27,11 @@ export default function Home() {
     const totalTenureYears = employees.reduce((sum, emp) => {
       const start = new Date(emp.startDate);
       const now = new Date();
-      // Ensure valid dates before calculation
       if (isNaN(start.getTime()) || isNaN(now.getTime())) {
         return sum;
       }
       const diffTime = Math.abs(now.getTime() - start.getTime());
-      const diffYears = diffTime / (1000 * 60 * 60 * 24 * 365.25); // Account for leap years
+      const diffYears = diffTime / (1000 * 60 * 60 * 24 * 365.25);
       return sum + diffYears;
     }, 0);
 
@@ -45,7 +44,6 @@ export default function Home() {
     };
   }, [employees]);
 
-  // Smart CSV parsing function
   const parseCSV = useCallback(async (csvData) => {
     return new Promise((resolve, reject) => {
       Papa.parse(csvData, {
@@ -72,9 +70,9 @@ export default function Home() {
           }
 
           const processedData = results.data
-            .filter(row => row.name && String(row.name).trim()) // Ensure name exists and is not just whitespace
+            .filter(row => row.name && String(row.name).trim())
             .map((row, index) => ({
-              id: employees.length + index + 1, // Generate unique ID
+              id: employees.length + index + 1,
               name: String(row.name || '').trim(),
               department: String(row.department || 'Unassigned').trim(),
               position: String(row.position || 'Not Specified').trim(),
@@ -91,9 +89,8 @@ export default function Home() {
         }
       });
     });
-  }, [employees.length]); // Depend on employees.length to ensure unique IDs
+  }, [employees.length]);
 
-  // Handle CSV file upload
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -112,7 +109,7 @@ export default function Home() {
       setEmployees(prev => [...prev, ...newEmployees]);
 
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''; // Reset file input
+        fileInputRef.current.value = '';
       }
 
       alert(`Successfully imported ${newEmployees.length} employees!`);
@@ -121,7 +118,6 @@ export default function Home() {
     }
   };
 
-  // Export all employees to CSV
   const exportToCSV = () => {
     const csvData = employees.map(emp => ({
       'Employee ID': emp.id,
@@ -143,122 +139,69 @@ export default function Home() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url); // Clean up the object URL
+    URL.revokeObjectURL(url);
   };
 
-return (
-  <DashboardLayout userType="hr" userName="John Smith">
-    <div className="relative flex size-full min-h-screen flex-col bg-muted/30 group/design-root overflow-x-hidden font-sans">
-      <div className="layout-container flex h-full grow flex-col">
-        <header className="flex items-center justify-between whitespace-nowrap border-b border-gray-200 px-10 py-3 bg-white">
-          <div className="flex items-center gap-4 text-brand-navy-dark">
-            <div className="size-6">
-              <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <g clipPath="url(#clip0_6_319)">
-                  <path
-                    d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 42.4987 36.3314 44.1494 32.3462C45.8002 28.361 46.2321 23.9758 45.3905 19.7452C44.549 15.5145 42.4718 11.6284 39.4217 8.57829L24 24L8.57829 8.57829Z"
-                    fill="currentColor"
+  return (
+    <DashboardLayout userType="hr" userName="John Smith">
+      <div className="space-y-6 bg-muted/30 min-h-screen px-6 py-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">HR Dashboard</h1>
+          <p className="text-muted-foreground">Welcome back, John! Here's your team overview.</p>
+        </div>
+
+        <div className="flex gap-4 flex-wrap">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".csv"
+            onChange={handleFileUpload}
+            className="hidden"
+          />
+          <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
+            Upload CSV
+          </Button>
+          <Button onClick={exportToCSV}>Export to CSV</Button>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {[
+            { label: 'Employee Count', value: employeeCount },
+            { label: 'Turnover Rate', value: `${turnoverRate}%` },
+            { label: 'Average Tenure', value: `${averageTenure} years` },
+          ].map((stat, i) => (
+            <Card key={stat.label} className={`animate-fade-in [animation-delay:${i * 100}ms]`}>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">{stat.label}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">{stat.value}</div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <Card className="animate-fade-in [animation-delay:300ms]">
+          <CardHeader>
+            <CardTitle>Employee Growth</CardTitle>
+            <CardDescription>Last 7 Months</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold text-green-700 mb-2">+15%</p>
+            <div className="grid min-h-[180px] grid-flow-col gap-4 grid-rows-[1fr_auto] items-end justify-items-center px-3">
+              {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'].map((month, i) => (
+                <React.Fragment key={month}>
+                  <div
+                    className="w-full rounded-t-sm bg-brand-navy-lightest border-t-2 border-brand-navy-dark"
+                    style={{ height: `${(i + 3) * 10}%` }}
                   />
-                </g>
-                <defs>
-                  <clipPath id="clip0_6_319">
-                    <rect width="48" height="48" fill="white" />
-                  </clipPath>
-                </defs>
-              </svg>
-            </div>
-            <h2 className="text-xl font-bold">HR Dashboard</h2>
-          </div>
-
-          <div className="flex flex-1 justify-end gap-4">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".csv"
-              onChange={handleFileUpload}
-              className="hidden"
-              aria-label="Upload CSV file"
-            />
-
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="h-10 px-4 rounded-full text-sm font-semibold bg-brand-navy-lightest text-brand-navy-dark hover:bg-gray-200"
-            >
-              Upload CSV
-            </button>
-
-            <button
-              onClick={exportToCSV}
-              className="h-10 px-4 rounded-full text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700"
-            >
-              Export to CSV
-            </button>
-
-            <div
-              className="rounded-full size-10 bg-center bg-no-repeat bg-cover"
-              style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuAs_V4xjaIHeoj5GeU06HeZuDmVW2C3VGGYfby699C-VX6UXMaNHmeDnGvB4ueimKPZ8PKe4R2whovBJQ4_IeK-Mou8Pb0eIUdvAkCcdQ8wPnRR21hTdXhhKRes7eJxH2fbP4AtkOEmi3lJLZ096mhl06alnat2gyJk8kY0A3FUCtELy1hFdKxHTPRpCCJo09yGgdHy_I0NZB8kpLN6o8tivU_V4ZoRyuqbkWGAhgVQpYZjq0gD3_xwThwdeIPKWnm8XtT9cD9BfRY")' }}
-              role="img"
-              aria-label="User profile picture"
-            />
-          </div>
-        </header>
-
-        <div className="flex flex-1 justify-center py-5 px-6 sm:px-10 md:px-20 lg:px-40">
-          <div className="layout-content-container flex flex-col max-w-6xl w-full">
-            <div className="flex flex-wrap justify-between gap-4 p-4">
-              <div className="flex min-w-72 flex-col gap-3">
-                <h1 className="text-4xl font-bold text-brand-navy-dark">Welcome to Your HR Dashboard</h1>
-                <p className="text-base font-normal text-muted-foreground">
-                  Manage your employee data, view analytics, and upload/export CSV files with ease.
-                </p>
-              </div>
-            </div>
-
-            {/* Statistics */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-              {[ 
-                { label: 'Employee Count', value: employeeCount },
-                { label: 'Turnover Rate', value: `${turnoverRate}%` },
-                { label: 'Average Tenure', value: `${averageTenure} years` }
-              ].map(({ label, value }) => (
-                <div key={label} className="flex flex-col gap-2 rounded-xl bg-white p-6 border border-gray-300 shadow-sm">
-                  <p className="text-base font-medium text-brand-navy-dark">{label}</p>
-                  <p className="text-3xl font-bold text-brand-navy-dark">{value}</p>
-                </div>
+                  <p className="text-xs font-bold text-muted-foreground">{month}</p>
+                </React.Fragment>
               ))}
             </div>
-
-            {/* Growth Chart */}
-            <div className="flex flex-wrap gap-4 px-4 py-6">
-              <div className="flex-1 flex-col gap-2 rounded-xl bg-white border border-gray-300 p-6 shadow-sm">
-                <p className="text-base font-medium text-brand-navy-dark">Employee Growth</p>
-                <p className="text-3xl font-bold truncate text-brand-navy-dark">+15%</p>
-                <div className="flex gap-1">
-                  <p className="text-base font-normal text-muted-foreground">Last Year</p>
-                  <p className="text-base font-medium text-green-700">+15%</p>
-                </div>
-                <div className="grid min-h-[180px] grid-flow-col gap-4 grid-rows-[1fr_auto] items-end justify-items-center px-3">
-                  {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'].map((month, i) => (
-                    <React.Fragment key={month}>
-                      <div
-                        className="w-full rounded-t-sm bg-brand-navy-lightest border-t-2 border-brand-navy-dark"
-                        style={{ height: `${(i + 3) * 10}%` }}
-                      />
-                      <p className="text-xs font-bold text-muted-foreground">{month}</p>
-                    </React.Fragment>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Employee Table */}
-           
-
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
-    </div>
-  </DashboardLayout>
-)
-
+    </DashboardLayout>
+  );
 }

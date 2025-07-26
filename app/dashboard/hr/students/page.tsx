@@ -1,19 +1,31 @@
-"use client"; // This directive is necessary for Next.js 13+ App Router to use client-side features
+"use client"; 
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo,useEffect, useCallback } from 'react';
 import { MagnifyingGlassIcon, ChevronDownIcon, XMarkIcon } from '@heroicons/react/24/outline'; // Added XMarkIcon for close button
 import { DashboardLayout } from "@/components/dashboard-layout"; // Adjust the path if needed
 
 const InternDashboard = () => {
-  // Initial static data for employees and tasks
-  const [employees, setEmployees] = useState([
-    { id: 1, name: 'Liam Harper', dept: 'Engineering', role: 'Software Engineer', status: 'Active', workflow: 'Onboarding', studyAbroad: false },
-    { id: 2, name: 'Olivia Bennett', dept: 'Product', role: 'Product Manager', status: 'Active', workflow: 'Active', studyAbroad: true },
-    { id: 3, name: 'Noah Foster', dept: 'Design', role: 'UX Designer', status: 'Active', workflow: 'Review', studyAbroad: false },
-    { id: 4, name: 'Ava Carter', dept: 'Marketing', role: 'Marketing Specialist', status: 'Active', workflow: 'Completion', studyAbroad: true },
-    { id: 5, name: 'Ethan Reed', dept: 'Sales', role: 'Sales Representative', status: 'Active', workflow: 'Active', studyAbroad: false },
-    { id: 6, name: 'Sophia Martinez', dept: 'HR', role: 'HR Intern', status: 'Inactive', workflow: 'Offboarding', studyAbroad: false },
-  ]);
+
+  const [interns, setInterns] = useState([]);
+
+useEffect(() => {
+  const fetchInterns = async () => {
+    try {
+      const res = await fetch('http://localhost:5000/api/interns');
+      if (!res.ok) {
+        throw new Error(`Server error: ${res.status}`);
+      }
+      const data = await res.json();
+      console.log('Fetched interns:', data);
+      setInterns(data); // 👈 Save the interns in state
+    } catch (error) {
+      console.error('Error fetching interns:', error);
+    }
+  };
+
+  fetchInterns();
+}, []);
+
 
   const [tasks, setTasks] = useState([
     { id: 1, intern: 'Liam Harper', task: 'Complete onboarding modules', deadline: '2024-08-15', priority: 'High', status: 'In Progress' },
@@ -64,19 +76,19 @@ const InternDashboard = () => {
 
   // --- Helper Functions for Dynamic Options ---
   const getUniqueDepartments = useMemo(() => {
-    const depts = new Set(employees.map(emp => emp.dept));
+    const depts = new Set(interns.map(emp => emp.dept));
     return ['', ...Array.from(depts)].sort(); // Add empty option and sort
-  }, [employees]);
+  }, [interns]);
 
   const getUniqueRoles = useMemo(() => {
-    const roles = new Set(employees.map(emp => emp.role));
+    const roles = new Set(interns.map(emp => emp.role));
     return ['', ...Array.from(roles)].sort(); // Add empty option and sort
-  }, [employees]);
+  }, [interns]);
 
   const getUniqueInternNames = useMemo(() => {
-    const names = new Set(employees.map(emp => emp.name));
+    const names = new Set(interns.map(emp => emp.name));
     return ['', ...Array.from(names)].sort(); // Add empty option and sort
-  }, [employees]);
+  }, [interns]);
 
   const getTaskPriorities = useMemo(() => {
     return ['', 'High', 'Medium', 'Low'];
@@ -98,34 +110,34 @@ const InternDashboard = () => {
     return ['Onboarding', 'Active', 'Review', 'Completion', 'Offboarding'];
   }, []);
 
-  // --- Filtering Logic for Employees ---
-  const filteredEmployees = useMemo(() => {
-    let currentEmployees = employees;
+  // --- Filtering Logic for interns ---
+  const filteredinterns = useMemo(() => {
+    let currentinterns = interns;
 
     // Filter by search term
     if (searchTerm) {
-      currentEmployees = currentEmployees.filter(emp =>
+      currentinterns = currentinterns.filter(emp =>
         emp.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     // Filter by active tab (All, Active, Inactive)
     if (activeTab !== 'All') {
-      currentEmployees = currentEmployees.filter(emp => emp.status === activeTab);
+      currentinterns = currentinterns.filter(emp => emp.status === activeTab);
     }
 
     // Filter by department
     if (filters.department) {
-      currentEmployees = currentEmployees.filter(emp => emp.dept === filters.department);
+      currentinterns = currentinterns.filter(emp => emp.dept === filters.department);
     }
 
     // Filter by role
     if (filters.role) {
-      currentEmployees = currentEmployees.filter(emp => emp.role === filters.role);
+      currentinterns = currentinterns.filter(emp => emp.role === filters.role);
     }
 
-    return currentEmployees;
-  }, [employees, searchTerm, activeTab, filters]);
+    return currentinterns;
+  }, [interns, searchTerm, activeTab, filters]);
 
   // --- Event Handlers ---
 
@@ -154,30 +166,7 @@ const InternDashboard = () => {
     setShowAddInternModal(true);
   };
 
-  // Handler for new intern form changes
-  const handleNewInternFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { id, value, type, checked } = e.target as HTMLInputElement;
-    setNewInternForm(prev => ({
-      ...prev,
-      [id]: type === 'checkbox' ? checked : value,
-    }));
-  };
 
-  // Handler for adding a new intern
-  const handleAddNewIntern = () => {
-    if (!newInternForm.name || !newInternForm.dept || !newInternForm.role) {
-      alert('Please fill in all required fields for the new intern (Name, Department, Role).');
-      return;
-    }
-
-    const newId = employees.length > 0 ? Math.max(...employees.map(emp => emp.id)) + 1 : 1;
-    const internToAdd = { ...newInternForm, id: newId };
-
-    setEmployees(prev => [...prev, internToAdd]);
-    alert(`New intern "${internToAdd.name}" added successfully!`);
-    setShowAddInternModal(false); // Close modal
-    // Form is already reset by handleOpenAddInternModal when opened next time
-  };
 
 
   const handleNewTaskFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -247,29 +236,22 @@ const InternDashboard = () => {
     setProgressReportFile(null); // Reset file input when closing modal
   };
 
-  // Handler for progress report file selection
   const handleProgressReportFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setProgressReportFile(e.target.files[0]);
-    } else {
-      setProgressReportFile(null);
-    }
-  };
+  setProgressReportFile(e.target.files?.[0] ?? null);
+};
 
-  // Handler for uploading progress report
-  const handleUploadProgressReport = () => {
-    if (!progressReportFile) {
-      alert('Please select a file to upload.');
-      return;
-    }
-    // Simulate file upload
-    alert(`Uploading progress report for ${selectedInternDetails?.name}: ${progressReportFile.name}`);
-    console.log('Simulating upload of file:', progressReportFile);
-    // In a real application, you would send this file to a server
-    setProgressReportFile(null); // Clear selected file after "upload"
-    // Optionally close modal or show success message
-  };
+// Simulate file upload
+const handleUploadProgressReport = () => {
+  if (!progressReportFile) {
+    alert('Please select a file to upload.');
+    return;
+  }
 
+  alert(`Uploading progress report for ${selectedInternDetails?.name}: ${progressReportFile.name}`);
+  console.log('Simulating upload of file:', progressReportFile);
+
+  setProgressReportFile(null); // Clear file
+};
 
   // --- Reusable Components (modified to be controlled and themed) ---
   const FilterButton = ({ children, filterType, options, selectedValue, onSelectChange }: {
@@ -375,6 +357,56 @@ const InternDashboard = () => {
     </div>
   );
 
+const handleNewInternFormChange = (e) => {
+  const { id, value, type, checked } = e.target;
+  setNewInternForm((prev) => ({
+    ...prev,
+    [id]: type === "checkbox" ? checked : value,
+  }));
+};
+const handleAddNewIntern = async () => {
+  try {
+    console.log('📤 Submitting new intern form data:', newInternForm); // Debug: show form data
+
+    const response = await fetch('http://localhost:5000/api/interns', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newInternForm),
+    });
+
+    console.log('🔄 Server response status:', response.status); // Debug: response status
+
+    if (!response.ok) {
+      const errorText = await response.text(); // in case backend returns text error
+      console.error('❌ Backend responded with error:', errorText);
+      throw new Error('Failed to add intern');
+    }
+
+    const savedIntern = await response.json();
+    console.log('✅ Successfully added intern:', savedIntern); // Debug: saved intern data
+
+    setInterns(prev => [...prev, savedIntern]);
+    setShowAddInternModal(false);
+
+    setNewInternForm({
+      name: '',
+      dept: '',
+      role: '',
+      status: '',
+      workflow: '',
+      studyAbroad: false,
+    });
+
+  } catch (error) {
+    console.error('🚨 Error adding intern:', error); // Catch block
+    alert('Failed to add intern. Please check console for details and try again.');
+  }
+};
+
+
+
   const DataTable = ({ headers, data, renderRow }: {
     headers: string[],
     data: any[],
@@ -408,23 +440,23 @@ const InternDashboard = () => {
     </div>
   );
 
-  return (
-    <DashboardLayout userType="hr" userName="Durva Kadam"> {/* Set userType and userName */}
-      <div className="relative flex size-full min-h-screen flex-col bg-gray-900 text-gray-100 font-sans">
-        <div className="layout-container flex h-full grow flex-col">
-          <div className="px-6 sm:px-10 md:px-20 lg:px-40 flex flex-1 justify-center py-5">
-            <div className="layout-content-container flex flex-col max-w-6xl flex-1">
+return (
+  <DashboardLayout userType="hr" userName="Durva Kadam">
+    <div className="relative flex size-full min-h-screen flex-col bg-gray-900 text-gray-100 font-sans">
+      <div className="layout-container flex h-full grow flex-col">
+        <div className="px-6 sm:px-10 md:px-20 lg:px-40 flex flex-1 justify-center py-5">
+          <div className="layout-content-container flex flex-col max-w-6xl flex-1">
 
-              {/* Header */}
-              <div className="flex flex-wrap justify-between gap-3 p-4">
-                <p className="text-white text-4xl font-bold min-w-72">Interns Management</p>
-                <button
-                  onClick={handleOpenAddInternModal} // Changed to open new intern modal
-                  className="flex min-w-[84px] max-w-[480px] items-center justify-center overflow-hidden rounded-full h-10 px-4 bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 transition-colors shadow-md"
-                >
-                  <span className="truncate">Add New Intern</span>
-                </button>
-              </div>
+            {/* Interns Management Header */}
+            <div className="flex flex-wrap justify-between gap-3 p-4">
+              <p className="text-white text-4xl font-bold min-w-72">Interns Management</p>
+              <button
+                onClick={handleOpenAddInternModal}
+                className="flex min-w-[84px] max-w-[480px] items-center justify-center overflow-hidden rounded-full h-10 px-4 bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 transition-colors shadow-md"
+              >
+                <span className="truncate">Add New Intern</span>
+              </button>
+            </div>
 
               {/* Search */}
               <div className="px-4 py-3">
@@ -485,9 +517,9 @@ const InternDashboard = () => {
               <h2 className="text-white text-2xl font-bold px-4 pb-3 pt-5">Intern Management Workflow</h2>
               <DataTable
                 headers={['Name', 'Department', 'Role', 'Status', 'Workflow Stage', 'Planning to Study Abroad', 'Actions']}
-                data={filteredEmployees}
+                data={filteredinterns}
                 renderRow={(emp, i) => (
-                  <tr key={emp.id} className="border-t border-gray-700 hover:bg-gray-700 transition-colors">
+<tr key={emp._id || emp.id || i} className="border-t border-gray-700 hover:bg-gray-700 transition-colors">
                     <td className="h-[72px] px-4 py-2 text-white text-sm">{emp.name}</td>
                     <td className="h-[72px] px-4 py-2 text-gray-300 text-sm">{emp.dept}</td>
                     <td className="h-[72px] px-4 py-2 text-gray-300 text-sm">{emp.role}</td>
@@ -710,79 +742,79 @@ const InternDashboard = () => {
       )}
 
       {/* Add New Intern Modal */}
-      {showAddInternModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md border border-gray-700 relative">
-            <button
-              onClick={() => setShowAddInternModal(false)}
-              className="absolute top-3 right-3 text-gray-400 hover:text-white transition-colors"
-              aria-label="Close"
-            >
-              <XMarkIcon className="h-6 w-6" />
-            </button>
-            <h3 className="text-2xl font-bold text-white mb-4 border-b border-gray-700 pb-2">
-              Add New Intern
-            </h3>
-            <div className="space-y-4">
-              <FormInput
-                id="name"
-                placeholder="Intern Name"
-                type="text"
-                value={newInternForm.name}
-                onChange={handleNewInternFormChange}
-              />
-              <FormInput
-                id="dept"
-                placeholder="Department"
-                type="select"
-                value={newInternForm.dept}
-                onChange={handleNewInternFormChange}
-                options={getUniqueDepartments.filter(d => d !== '')} // Exclude empty option for new intern
-              />
-              <FormInput
-                id="role"
-                placeholder="Role"
-                type="select"
-                value={newInternForm.role}
-                onChange={handleNewInternFormChange}
-                options={getUniqueRoles.filter(r => r !== '')} // Exclude empty option for new intern
-              />
-              <FormInput
-                id="status"
-                placeholder="Status"
-                type="select"
-                value={newInternForm.status}
-                onChange={handleNewInternFormChange}
-                options={getInternStatuses}
-              />
-              <FormInput
-                id="workflow"
-                placeholder="Workflow Stage"
-                type="select"
-                value={newInternForm.workflow}
-                onChange={handleNewInternFormChange}
-                options={getInternWorkflows}
-              />
-              <FormInput
-                id="studyAbroad"
-                placeholder="Planning to Study Abroad"
-                type="checkbox"
-                value={newInternForm.studyAbroad}
-                onChange={handleNewInternFormChange}
-              />
-            </div>
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                onClick={() => setShowAddInternModal(false)}
-                className="px-6 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors font-semibold"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleAddNewIntern}
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-semibold"
-              >
-                Add Intern
+       {showAddInternModal && (
+              <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+                <div className="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md border border-gray-700 relative">
+                  <button
+                    onClick={() => setShowAddInternModal(false)}
+                    className="absolute top-3 right-3 text-gray-400 hover:text-white transition-colors"
+                    aria-label="Close"
+                  >
+                    <XMarkIcon className="h-6 w-6" />
+                  </button>
+                  <h3 className="text-2xl font-bold text-white mb-4 border-b border-gray-700 pb-2">
+                    Add New Intern
+                  </h3>
+                  <div className="space-y-4">
+                    <FormInput
+                      id="name"
+                      placeholder="Intern Name"
+                      type="text"
+                      value={newInternForm.name}
+                      onChange={handleNewInternFormChange}
+                    />
+                    <FormInput
+                      id="dept"
+                      placeholder="Department"
+                      type="select"
+                      value={newInternForm.dept}
+                      onChange={handleNewInternFormChange}
+                      options={getUniqueDepartments.filter(d => d !== '')}
+                    />
+                    <FormInput
+                      id="role"
+                      placeholder="Role"
+                      type="select"
+                      value={newInternForm.role}
+                      onChange={handleNewInternFormChange}
+                      options={getUniqueRoles.filter(r => r !== '')}
+                    />
+                    <FormInput
+                      id="status"
+                      placeholder="Status"
+                      type="select"
+                      value={newInternForm.status}
+                      onChange={handleNewInternFormChange}
+                      options={getInternStatuses}
+                    />
+                    <FormInput
+                      id="workflow"
+                      placeholder="Workflow Stage"
+                      type="select"
+                      value={newInternForm.workflow}
+                      onChange={handleNewInternFormChange}
+                      options={getInternWorkflows}
+                    />
+                    <FormInput
+                      id="studyAbroad"
+                      placeholder="Planning to Study Abroad"
+                      type="checkbox"
+                      value={newInternForm.studyAbroad}
+                      onChange={handleNewInternFormChange}
+                    />
+                  </div>
+                  <div className="mt-6 flex justify-end gap-3">
+                    <button
+                      onClick={() => setShowAddInternModal(false)}
+                      className="px-6 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors font-semibold"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleAddNewIntern}
+                      className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-semibold"
+                    >
+                      Add Intern
               </button>
             </div>
           </div>
