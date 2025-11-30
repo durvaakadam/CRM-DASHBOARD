@@ -1,64 +1,53 @@
 # CRM Dashboard
 
-A modular, role-based CRM dashboard system developed during the **Humblewalking** internship.  
-It helps organizations manage **scheduling, record-keeping, and analytics**, with tailored dashboards for each role to keep workflows smooth and decision-making fast.
+A modular, role-based **CRM dashboard** system developed during the **Humblewalking** internship.  
+It helps organizations manage **scheduling, record-keeping, and analytics**, with separate dashboards for each role to streamline workflows and decision-making.
 
 ---
 
-## 🌟 Key Features
+## 🌟 Features
 
 ### 🔐 Role-Based Dashboards
-Each role sees a customized workspace with relevant data and actions:
 
-- **CEO Dashboard**
-  - High-level summary of counselling & interview activity
-  - Quick view of upcoming events and overall load
-  - Basic analytics/insights for decision-making
+Each role gets its own dedicated dashboard:
 
-- **Counsellor Dashboard**
-  - Calendar view of all counselling appointments
-  - View / manage upcoming sessions
-  - Access to candidate / student details relevant to each appointment
+| Role | Capabilities |
+|------|--------------|
+| **CEO** | View overall activity, upcoming events, and analytics |
+| **Counsellor** | Manage counselling appointments and candidate information |
+| **HR** | Manage interview schedules, upload CSVs, and view hiring-related analytics |
 
-- **HR Dashboard**
-  - View and manage **interview / hiring appointments**
-  - Upload CSV data for records or analytics
-  - Access dashboards showing trends and stats useful for HR
+---
 
-### 📅 Scheduling & Calendar
-- Integrated calendar view for appointments
-- Role-specific event lists and details
-- Support for creating new appointments from the dashboard UI
+### 📅 Calendar & Appointment Management
+- Central appointment scheduling
+- Calendar + list views
+- Role-specific actions and details
 
 ### 📊 Analytics & Insights
-- Basic analytics panels (counts, trends, summaries)
-- Focus on making it easy for leadership roles (like CEO/HR) to see what’s happening at a glance
+- Summary counts and usage trends
+- High-level insight panels for CEO and HR
 
 ### 🧱 Modular Architecture
-- **Next.js App Router** frontend
-- **Backend** separated in its own folder for APIs & database logic
-- Clear separation of concerns: `app/`, `components/`, `hooks/`, `lib/`, `backend/`, etc.
+- **Next.js App Router** for UI
+- **Backend (Node.js + MongoDB)** in dedicated folder
+- Clean folder separation for scalability
 
 ### 🎨 Modern UI
-- Built with **TypeScript**, **Tailwind CSS**, and reusable components
-- Consistent theme across all dashboards
-- Responsive layout suitable for desktop usage
+- Dedicated dashboards for roles
+- Built with **TypeScript + Tailwind CSS**
+- Responsive layout & consistent theme
 
 ---
 
 ## 🧰 Tech Stack
 
-**Frontend**
-- [Next.js](https://nextjs.org/) (App Router)
-- TypeScript
-- React hooks & custom hooks (`/hooks`)
-- Tailwind CSS
-- Reusable UI components (`/components`)
-
-**Backend**
-- Node.js (Express-style backend inside `/backend`)
-- REST-style APIs for appointments, records, and analytics
-- MongoDB (or another database) for persistent storage
+| Layer | Technology |
+|-------|------------|
+| Frontend | Next.js · TypeScript · Tailwind CSS |
+| Backend | Node.js · Express |
+| Database | MongoDB |
+| Data Flow | REST APIs |
 
 ---
 
@@ -66,15 +55,16 @@ Each role sees a customized workspace with relevant data and actions:
 
 ```text
 CRM-DASHBOARD/
-├── app/                 # Next.js app router pages/routes
-├── backend/             # Backend server (APIs, DB logic)
-├── components/          # Reusable UI components
-├── hooks/               # Custom React hooks
-├── lib/                 # Utilities, helpers, config
-├── public/              # Static assets
-├── styles/              # Global styles (Tailwind, globals.css, etc.)
-├── next.config.mjs      # Next.js configuration
-├── tailwind.config.ts   # Tailwind configuration
-├── tsconfig.json        # TypeScript configuration
-├── package.json         # Frontend dependencies & scripts
-└── pnpm-lock.yaml / package-lock.json
+├─ app/                 # Next.js App Router pages
+├─ backend/             # Node.js + Express backend
+├─ components/          # Reusable UI components
+├─ hooks/               # Custom React hooks
+├─ lib/                 # Helpers / utilities / configuration
+├─ public/              # Static assets
+├─ styles/              # Global styles
+├─ next.config.mjs
+├─ tailwind.config.ts
+├─ tsconfig.json
+└─ package.json
+
+
